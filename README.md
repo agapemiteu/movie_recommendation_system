@@ -1,11 +1,61 @@
-# 🎬 MR1 - Movie Recommender System
+
+# 🎬 MRS - Movie Recommendation System
 
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![TensorFlow 2.20](https://img.shields.io/badge/TensorFlow-2.20-orange.svg)](https://www.tensorflow.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40-red.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+
 A state-of-the-art movie recommendation system powered by multiple machine learning algorithms including Neural Collaborative Filtering, Content-Based Filtering, and Hybrid approaches. Built with TensorFlow and Streamlit for an elegant Netflix-inspired user experience.
+
+---
+
+## 📦 Data Source
+
+This project uses the [MovieLens 25M Dataset](https://grouplens.org/datasets/movielens/25m/) provided by GroupLens Research.
+
+- **Official Download:** https://grouplens.org/datasets/movielens/25m/
+- **License:** For non-commercial, research use only. See [GroupLens Terms of Use](https://grouplens.org/datasets/movielens/).
+
+**Citation:**
+> F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets: History and Context. ACM Transactions on Interactive Intelligent Systems (TiiS) 5, 4: 19:1–19:19. https://doi.org/10.1145/2827872
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to set up and run the project on your machine:
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/agapemiteu/movie_recommendation_system.git
+cd movie_recommendation_system
+```
+
+### 2. Install dependencies
+```bash
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+```
+
+### 3. Download the MovieLens 25M dataset
+- Go to the [official MovieLens 25M page](https://grouplens.org/datasets/movielens/25m/)
+- Download and unzip `ml-25m.zip`
+- Place the extracted `ml-25m` folder inside the `data/` directory of this project:
+   - `data/ml-25m/movies.csv`
+   - `data/ml-25m/ratings.csv`
+   - ... (other files)
+
+### 4. Run the analysis or app
+- **Jupyter Notebook:**
+   - Open and run `notebooks/phase_1_content_based_filtering.ipynb` to train models and explore the pipeline.
+- **Streamlit App:**
+   - Run `streamlit run app.py` to launch the web interface.
+
+---
 
 ## ✨ Features
 

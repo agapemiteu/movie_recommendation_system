@@ -1,5 +1,5 @@
 """
-MR1 - Movie Recommender One
+MRS - Movie Recommendation System
 Intelligent Movie Recommendations Powered by Machine Learning
 """
 
@@ -20,7 +20,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Page configuration
 st.set_page_config(
-    page_title="MR1 - Movie Recommender",
+    page_title="MRS - Movie Recommender",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="collapsed"
