@@ -1,0 +1,15 @@
+# MR1 - Movie Recommender One
+# Python dependencies for production deployment
+
+# Core ML libraries
+tensorflow==2.20.0
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==2.0.2
+
+# Web framework
+streamlit==1.40.2
+plotly==5.24.1
+
+# Additional utilities
+scipy==1.14.1
