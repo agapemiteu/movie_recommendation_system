@@ -113,7 +113,13 @@ streamlit run app.py
 
 Visit `http://localhost:8501` in your browser!
 
-## 📊 Model Performance
+## � Live Demo (Streamlit)
+
+Once deployed, add your app URL here. Example badge to add to README after deployment:
+
+[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://<your-app-url>.streamlit.app)
+
+## �📊 Model Performance
 
 | Model | Test MAE | Test RMSE | Features |
 |-------|----------|-----------|----------|

@@ -48,9 +48,16 @@ data/ml-25m/*.dat
 data/ml-25m/README.txt
 
 # Models (optional - uncomment if models are too large)
-# models/*.keras
-# models/*.pkl
-# models/*.h5
+# Models - do not commit large model artifacts to the repo
+models/deep_learning_model.keras
+models/nmf_model.pkl
+models/tfidf_matrix.pkl
+models/indices.pkl
+models/dl_mappings.pkl
+models/movies.csv
+models/*.keras
+models/*.pkl
+models/*.h5
 
 # Keras Tuner results
 notebooks/tuner_results/

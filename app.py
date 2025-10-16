@@ -35,32 +35,32 @@ MODEL_ACCURACY = {
 
 # Enhanced CSS - Netflix-inspired black & red theme
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
-    * {
-        font-family: 'Inter', sans-serif;
-    }
-    
-    .main {
-        background-color: #141414;
-        color: #ffffff;
-        padding: 2rem 1rem;
-    }
-    
-    /* Hero Section */
-    .hero {
-        background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
-                    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23E50914" width="1200" height="600"/></svg>');
-        padding: 3rem 2rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    
-    .hero h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
+        with col1:
+            movie_titles = movies_df['title'].tolist()
+            # Add search functionality
+            search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title... (e.g., Inception, Toy Story)")
+            if search_term:
+                # Filter movies based on search
+                filtered_movies = [title for title in movie_titles if search_term.lower() in title.lower()]
+                if filtered_movies:
+                    selected_movie = st.selectbox(
+                        "Select from search results:",
+                        options=filtered_movies,
+                        index=0
+                    )
+                else:
+                    st.warning(f"No movies found matching '{search_term}'. Try a different search term.")
+                    selected_movie = st.selectbox(
+                        "Or browse all movies:",
+                        options=movie_titles,
+                        index=movie_titles.index('Toy Story (1995)') if 'Toy Story (1995)' in movie_titles else 0
+                    )
+            else:
+                selected_movie = st.selectbox(
+                    "Or browse all movies:",
+                    options=movie_titles,
+                    index=movie_titles.index('Toy Story (1995)') if 'Toy Story (1995)' in movie_titles else 0
+                )
         color: #E50914;
         margin: 0;
         letter-spacing: -0.03em;
@@ -280,10 +280,10 @@ st.markdown("""
 @st.cache_resource
 def load_models():
     models_dir = Path('models')
-    
+
     # Load movies data
     movies = pd.read_csv(models_dir / 'movies.csv')
-    
+
     # Load content-based models
     with open(models_dir / 'tfidf_model.pkl', 'rb') as f:
         tfidf_vectorizer = pickle.load(f)
@@ -291,49 +291,66 @@ def load_models():
         tfidf_matrix = pickle.load(f)
     with open(models_dir / 'indices.pkl', 'rb') as f:
         indices = pickle.load(f)
-    
+
     # Load collaborative filtering model
     with open(models_dir / 'nmf_model.pkl', 'rb') as f:
         nmf_data = pickle.load(f)
-    
-    # Load deep learning model
-    dl_model = tf.keras.models.load_model(models_dir / 'deep_learning_model.keras')
-    
-    with open(models_dir / 'dl_mappings.pkl', 'rb') as f:
-        dl_mappings = pickle.load(f)
-    
-    return {
-        'movies': movies,
-        'tfidf_vectorizer': tfidf_vectorizer,
-        'tfidf_matrix': tfidf_matrix,
-        'indices': indices,
-        'nmf_model': nmf_data['model'],
-        'user_features': nmf_data['user_features'],
-        'movie_features': nmf_data['movie_features'],
-        'user_to_idx': nmf_data['user_to_idx'],
-        'movie_to_idx': nmf_data['movie_to_idx'],
-        'idx_to_movie': nmf_data['idx_to_movie'],
-        'dl_model': dl_model,
-        'user_id_map': dl_mappings['user_id_map'],
-        'movie_id_map': dl_mappings['movie_id_map'],
-        'user_ids': dl_mappings['user_ids'],
-        'movie_ids': dl_mappings['movie_ids']
-    }
+
+    # Load deep learning model (if present)
+    dl_model = None
+    dl_mappings = {}
+    dl_model_path = models_dir / 'deep_learning_model.keras'
+    if dl_model_path.exists():
+        dl_model = tf.keras.models.load_model(dl_model_path)
+    dl_mappings_path = models_dir / 'dl_mappings.pkl'
+    if dl_mappings_path.exists():
+        with open(dl_mappings_path, 'rb') as f:
+            dl_mappings = pickle.load(f)
+
+    # Unpack nmf data
+    nmf_model = nmf_data.get('model')
+    user_features = nmf_data.get('user_features')
+    movie_features = nmf_data.get('movie_features')
+    user_to_idx = nmf_data.get('user_to_idx')
+    movie_to_idx = nmf_data.get('movie_to_idx')
+    idx_to_movie = nmf_data.get('idx_to_movie')
+
+    user_id_map = dl_mappings.get('user_id_map')
+    movie_id_map = dl_mappings.get('movie_id_map')
+    user_ids = dl_mappings.get('user_ids')
+    movie_ids = dl_mappings.get('movie_ids')
+
+    return (
+        movies,
+        tfidf_vectorizer,
+        tfidf_matrix,
+        indices,
+        nmf_model,
+        user_features,
+        movie_features,
+        user_to_idx,
+        movie_to_idx,
+        idx_to_movie,
+        dl_model,
+        user_id_map,
+        movie_id_map,
+        user_ids,
+        movie_ids,
+    )
 
 # Recommendation functions with similarity scores
-def get_content_recommendations(title, data, n=10):
+def get_content_recommendations(title, movies_df, indices, tfidf_matrix, n=10):
     """Content-based filtering using movie similarity"""
     try:
-        idx = data['indices'][title]
-        vector = data['tfidf_matrix'][idx]
-        similarities = cosine_similarity(vector, data['tfidf_matrix']).flatten()
+        idx = indices[title]
+        vector = tfidf_matrix[idx]
+        similarities = cosine_similarity(vector, tfidf_matrix).flatten()
         sim_scores = list(enumerate(similarities))
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:n+1]
-        
         results = []
         for i, score in sim_scores:
-            movie_title = data['movies']['title'].iloc[i]
-            genre = data['movies']['genres'].iloc[i]
+            movie_title = movies_df['title'].iloc[i]
+            genre = movies_df['genres'].iloc[i]
             results.append({
                 'title': movie_title,
                 'genre': genre,
@@ -343,20 +360,17 @@ def get_content_recommendations(title, data, n=10):
     except:
         return []
 
-def get_collaborative_recommendations(user_id, data, n=10):
+def get_collaborative_recommendations(user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, n=10):
     """Collaborative filtering using matrix factorization"""
-    if user_id not in data['user_to_idx']:
+    if user_id not in user_to_idx:
         return []
-    
-    user_idx = data['user_to_idx'][user_id]
-    predicted_ratings = data['user_features'][user_idx].dot(data['movie_features'])
-    
+    user_idx = user_to_idx[user_id]
+    predicted_ratings = user_features[user_idx].dot(movie_features)
     top_indices = predicted_ratings.argsort()[-n:][::-1]
-    
     results = []
     for idx in top_indices:
-        movie_id = data['idx_to_movie'][idx]
-        movie_row = data['movies'][data['movies']['movieId'] == movie_id].iloc[0]
+        movie_id = idx_to_movie[idx]
+        movie_row = movies_df[movies_df['movieId'] == movie_id].iloc[0]
         results.append({
             'title': movie_row['title'],
             'genre': movie_row['genres'],
@@ -364,23 +378,20 @@ def get_collaborative_recommendations(user_id, data, n=10):
         })
     return results
 
-def get_dl_recommendations(user_id, data, n=10):
+def get_dl_recommendations(user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, n=10):
     """Deep learning neural collaborative filtering"""
-    if user_id not in data['user_id_map']:
+    if user_id not in user_id_map:
         return []
-    
-    user_idx = data['user_id_map'][user_id]
-    all_movie_indices = np.arange(len(data['movie_ids']))
-    user_indices = np.full(len(data['movie_ids']), user_idx)
-    
-    predictions = data['dl_model'].predict([user_indices, all_movie_indices], verbose=0).flatten()
+    user_idx = user_id_map[user_id]
+    all_movie_indices = np.arange(len(movie_ids))
+    user_indices = np.full(len(movie_ids), user_idx)
+    predictions = dl_model.predict([user_indices, all_movie_indices], verbose=0).flatten()
     top_indices = predictions.argsort()[-n:][::-1]
-    
     results = []
-    idx_to_movie_id = {idx: movie_id for movie_id, idx in data['movie_id_map'].items()}
+    idx_to_movie_id = {idx: movie_id for movie_id, idx in movie_id_map.items()}
     for idx in top_indices:
         movie_id = idx_to_movie_id[idx]
-        movie_row = data['movies'][data['movies']['movieId'] == movie_id].iloc[0]
+        movie_row = movies_df[movies_df['movieId'] == movie_id].iloc[0]
         results.append({
             'title': movie_row['title'],
             'genre': movie_row['genres'],
@@ -398,36 +409,49 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
-    # Load data
-        # --- Data Loading with Demo Mode ---
-        data_dir = 'data/ml-25m/'
-        sample_movies_path = 'data/sample_movies.csv'
-        sample_ratings_path = 'data/sample_ratings.csv'
-        full_movies_path = os.path.join(data_dir, 'movies.csv')
-        full_ratings_path = os.path.join(data_dir, 'ratings.csv')
+    # --- Data Loading with Demo Mode ---
+    data_dir = 'data/ml-25m/'
+    models_dir = Path('models')
+    sample_movies_path = 'data/sample_movies.csv'
+    sample_ratings_path = 'data/sample_ratings.csv'
+    full_movies_path = os.path.join(data_dir, 'movies.csv')
+    full_ratings_path = os.path.join(data_dir, 'ratings.csv')
 
-        demo_mode = False
-        try:
-            if os.path.exists(full_movies_path) and os.path.exists(full_ratings_path):
-                movies_df = pd.read_csv(full_movies_path)
-                ratings_df = pd.read_csv(full_ratings_path)
-            elif os.path.exists(sample_movies_path) and os.path.exists(sample_ratings_path):
-                movies_df = pd.read_csv(sample_movies_path)
-                ratings_df = pd.read_csv(sample_ratings_path)
-                demo_mode = True
-            else:
-                st.error("No dataset found. Please add MovieLens data or sample data to the data/ folder.")
-                st.stop()
-        except Exception as e:
-            st.error(f"Error loading data: {e}")
+    demo_mode = False
+    try:
+        if os.path.exists(full_movies_path) and os.path.exists(full_ratings_path):
+            movies_df, tfidf_vectorizer, tfidf_matrix, indices, nmf_model, user_features, movie_features, user_to_idx, movie_to_idx, idx_to_movie, dl_model, user_id_map, movie_id_map, user_ids, movie_ids = load_models()
+            ratings_df = pd.read_csv(full_ratings_path)
+        elif os.path.exists(sample_movies_path) and os.path.exists(sample_ratings_path):
+            movies_df = pd.read_csv(sample_movies_path)
+            ratings_df = pd.read_csv(sample_ratings_path)
+            demo_mode = True
+            # For demo mode, use minimal models (or fallback logic)
+            tfidf_vectorizer = None
+            tfidf_matrix = None
+            indices = pd.Series(movies_df.index, index=movies_df['title']).drop_duplicates()
+            user_to_idx = {uid: idx for idx, uid in enumerate(ratings_df['userId'].unique())}
+            user_features = np.random.rand(len(user_to_idx), 10)
+            movie_features = np.random.rand(10, len(movies_df))
+            idx_to_movie = {idx: mid for idx, mid in enumerate(movies_df['movieId'].unique())}
+            dl_model = None
+            user_id_map = user_to_idx
+            movie_id_map = {mid: idx for idx, mid in enumerate(movies_df['movieId'].unique())}
+            user_ids = list(user_id_map.keys())
+            movie_ids = list(movie_id_map.keys())
+        else:
+            st.error("No dataset found. Please add MovieLens data or sample data to the data/ folder.")
             st.stop()
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        st.stop()
 
-        # Show demo mode info
-        if demo_mode:
-            st.info("Demo mode: Using small sample dataset for Streamlit Cloud. For full recommendations, run locally with the full MovieLens 25M dataset.")
+    # Show demo mode info
+    if demo_mode:
+        st.info("Demo mode: Using small sample dataset for Streamlit Cloud. For full recommendations, run locally with the full MovieLens 25M dataset.")
 
-        # Credit original dataset
-        st.caption("Data: MovieLens 25M, GroupLens Research. See README for citation.")
+    # Credit original dataset
+    st.caption("Data: MovieLens 25M, GroupLens Research. See README for citation.")
     
     st.markdown("## Choose Your Recommendation Method")
     st.markdown("Select the algorithm that best fits your needs:")
@@ -508,7 +532,7 @@ def main():
         col1, col2 = st.columns([3, 1])
         
         with col1:
-            movie_titles = data['movies']['title'].tolist()
+            movie_titles = movies_df['title'].tolist()
             
             # Add search functionality
             search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title... (e.g., Inception, Toy Story)")
@@ -541,7 +565,10 @@ def main():
         
         if st.button("🎯 Get Recommendations", key="content_get"):
             with st.spinner('🔍 Analyzing movie similarities...'):
-                recommendations = get_content_recommendations(selected_movie, data, num_recs)
+                # You need to load indices and tfidf_matrix above
+                # For demo mode, you may want to load from sample models if available
+                # Here, assuming you have loaded indices and tfidf_matrix
+                recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
                 if recommendations:
                     avg_score = np.mean([r['similarity'] for r in recommendations])
     
@@ -559,7 +586,7 @@ def main():
         col1, col2 = st.columns([3, 1])
         
         with col1:
-            available_users = list(data['user_to_idx'].keys())
+            available_users = list(user_to_idx.keys())
             user_id = st.selectbox(
                 "👤 Select User ID:", 
                 options=available_users[:100],
@@ -571,7 +598,8 @@ def main():
         
         if st.button("🎯 Get Recommendations", key="collab_get"):
             with st.spinner('📊 Analyzing user preferences...'):
-                recommendations = get_collaborative_recommendations(user_id, data, num_recs)
+                recommendations = get_collaborative_recommendations(
+                    user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
                 if recommendations:
                     avg_score = np.mean([r['predicted_rating'] for r in recommendations])
     
@@ -590,7 +618,7 @@ def main():
         col1, col2 = st.columns([3, 1])
         
         with col1:
-            available_users = list(data['user_id_map'].keys())
+            available_users = list(user_id_map.keys())
             user_id = st.selectbox(
                 "👤 Select User ID:", 
                 options=available_users[:100],
@@ -602,7 +630,8 @@ def main():
         
         if st.button("🎯 Get Recommendations", key="dl_get"):
             with st.spinner('🧠 Running neural network inference...'):
-                recommendations = get_dl_recommendations(user_id, data, num_recs)
+                recommendations = get_dl_recommendations(
+                    user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
                 if recommendations:
                     avg_score = np.mean([r['predicted_rating'] for r in recommendations])
     
