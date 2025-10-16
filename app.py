@@ -399,8 +399,35 @@ def main():
     """, unsafe_allow_html=True)
     
     # Load data
-    with st.spinner('🎬 Loading recommendation engine...'):
-        data = load_models()
+        # --- Data Loading with Demo Mode ---
+        data_dir = 'data/ml-25m/'
+        sample_movies_path = 'data/sample_movies.csv'
+        sample_ratings_path = 'data/sample_ratings.csv'
+        full_movies_path = os.path.join(data_dir, 'movies.csv')
+        full_ratings_path = os.path.join(data_dir, 'ratings.csv')
+
+        demo_mode = False
+        try:
+            if os.path.exists(full_movies_path) and os.path.exists(full_ratings_path):
+                movies_df = pd.read_csv(full_movies_path)
+                ratings_df = pd.read_csv(full_ratings_path)
+            elif os.path.exists(sample_movies_path) and os.path.exists(sample_ratings_path):
+                movies_df = pd.read_csv(sample_movies_path)
+                ratings_df = pd.read_csv(sample_ratings_path)
+                demo_mode = True
+            else:
+                st.error("No dataset found. Please add MovieLens data or sample data to the data/ folder.")
+                st.stop()
+        except Exception as e:
+            st.error(f"Error loading data: {e}")
+            st.stop()
+
+        # Show demo mode info
+        if demo_mode:
+            st.info("Demo mode: Using small sample dataset for Streamlit Cloud. For full recommendations, run locally with the full MovieLens 25M dataset.")
+
+        # Credit original dataset
+        st.caption("Data: MovieLens 25M, GroupLens Research. See README for citation.")
     
     st.markdown("## Choose Your Recommendation Method")
     st.markdown("Select the algorithm that best fits your needs:")
