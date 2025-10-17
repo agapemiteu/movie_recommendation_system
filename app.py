@@ -610,39 +610,39 @@ def main():
     with col1:
         st.markdown("""
             <div class="method-card">
-                <h3>🎭 Content-Based</h3>
-                <p><strong>How it works:</strong> Analyzes movie genres and themes using TF-IDF vectorization and cosine similarity.</p>
-                <p><strong>Best for:</strong> Finding movies similar to ones you already love</p>
-                <p><strong>Use case:</strong> "Show me movies like Inception"</p>
-                <span class="tech-badge">TF-IDF</span>
-                <span class="tech-badge">Cosine Similarity</span><br>
-                <span class="accuracy-badge">✓ Fast & Accurate</span>
+                <h3>🎭 Similarity Matching</h3>
+                <p><strong>What it does:</strong> Finds movies with matching genres and themes</p>
+                <p><strong>How:</strong> Compares movie features to find similar content</p>
+                <p><strong>Perfect for:</strong> "I loved Inception, show me more like it"</p>
+                <span class="tech-badge">Pattern Matching</span>
+                <span class="tech-badge">Genre Analysis</span><br>
+                <span class="accuracy-badge">✓ Instant Results</span>
             </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
             <div class="method-card">
-                <h3>👥 Collaborative Filtering</h3>
-                <p><strong>How it works:</strong> Uses Matrix Factorization (NMF) to learn patterns from 1M+ user ratings.</p>
-                <p><strong>Best for:</strong> Personalized recommendations based on viewing history</p>
-                <p><strong>Use case:</strong> "What should I watch next based on my taste?"</p>
-                <span class="tech-badge">NMF</span>
-                <span class="tech-badge">Matrix Factorization</span><br>
-                <span class="accuracy-badge">✓ Personalized</span>
+                <h3>👥 User Taste Analysis</h3>
+                <p><strong>What it does:</strong> Learns your preferences from 1M+ ratings</p>
+                <p><strong>How:</strong> Studies what users with similar taste enjoyed</p>
+                <p><strong>Perfect for:</strong> "Recommend based on my watch history"</p>
+                <span class="tech-badge">Personalized</span>
+                <span class="tech-badge">Data-Driven</span><br>
+                <span class="accuracy-badge">✓ Smart Predictions</span>
             </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
             <div class="method-card">
-                <h3>🤖 Deep Learning</h3>
-                <p><strong>How it works:</strong> Neural network with 6.8M parameters learns complex patterns from 500K+ interactions.</p>
-                <p><strong>Best for:</strong> Most accurate AI-powered predictions</p>
-                <p><strong>Use case:</strong> "Give me the best predictions using advanced AI"</p>
-                <span class="tech-badge">Neural Network</span>
-                <span class="tech-badge">Embeddings</span><br>
-                <span class="accuracy-badge">✓ MAE: 0.75 (Best!)</span>
+                <h3>🤖 AI Intelligence</h3>
+                <p><strong>What it does:</strong> Uses advanced AI to predict your ratings</p>
+                <p><strong>How:</strong> Trained on 500K+ user interactions using neural networks</p>
+                <p><strong>Perfect for:</strong> "Give me the most accurate predictions"</p>
+                <span class="tech-badge">Machine Learning</span>
+                <span class="tech-badge">AI-Powered</span><br>
+                <span class="accuracy-badge">✓ Highest Accuracy (0.75★)</span>
             </div>
         """, unsafe_allow_html=True)
 
