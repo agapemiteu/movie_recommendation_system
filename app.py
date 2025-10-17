@@ -37,12 +37,12 @@ st.markdown("""
     /* Hero Section */
     .hero {
         text-align: center;
-        padding: 3rem 0 2rem 0;
+        padding: 2rem 0 1.5rem 0;
         background: linear-gradient(180deg, #000000 0%, #141414 100%);
     }
 
     .hero h1 {
-        font-size: 4rem;
+        font-size: 3.5rem;
         font-weight: 900;
         color: #E50914;
         margin: 0;
@@ -50,10 +50,26 @@ st.markdown("""
     }
 
     .hero p {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #ffffff;
         margin-top: 0.5rem;
         font-weight: 300;
+    }
+
+    /* Main Search Section */
+    .search-section {
+        background: #1f1f1f;
+        border: 2px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+    }
+
+    .search-section h2 {
+        color: #E50914;
+        font-size: 1.8rem;
+        margin-top: 0;
+        margin-bottom: 1rem;
     }
 
     /* Method Cards */
@@ -61,10 +77,10 @@ st.markdown("""
         background: #1f1f1f;
         border: 2px solid #2a2a2a;
         border-radius: 8px;
-        padding: 2rem;
+        padding: 1.5rem;
         margin: 1rem 0;
         transition: all 0.3s ease;
-        min-height: 350px;
+        min-height: 280px;
     }
 
     .method-card:hover {
@@ -75,40 +91,40 @@ st.markdown("""
 
     .method-card h3 {
         color: #E50914;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
         margin-top: 0;
-        margin-bottom: 1rem;
+        margin-bottom: 0.8rem;
     }
 
     .method-card p {
         color: #b3b3b3;
-        font-size: 1rem;
+        font-size: 0.9rem;
         line-height: 1.6;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
     }
 
     .tech-badge {
         display: inline-block;
         background: rgba(229, 9, 20, 0.2);
         color: #E50914;
-        padding: 0.25rem 0.75rem;
+        padding: 0.2rem 0.6rem;
         border-radius: 4px;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        margin-right: 0.5rem;
-        margin-top: 0.5rem;
+        margin-right: 0.4rem;
+        margin-top: 0.4rem;
     }
 
     .accuracy-badge {
         display: inline-block;
         background: rgba(46, 204, 113, 0.2);
         color: #2ecc71;
-        padding: 0.25rem 0.75rem;
+        padding: 0.2rem 0.6rem;
         border-radius: 4px;
-        font-size: 0.875rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        margin-top: 0.5rem;
+        margin-top: 0.4rem;
     }
 
     /* Buttons */
@@ -163,7 +179,7 @@ st.markdown("""
     }
 
     /* Input Fields */
-    .stSelectbox label, .stNumberInput label, .stTextInput label {
+    .stSelectbox label, .stNumberInput label, .stTextInput label, .stRadio label {
         color: #ffffff !important;
         font-weight: 600;
         font-size: 1rem;
@@ -211,6 +227,16 @@ st.markdown("""
         font-size: 0.9rem;
         color: #b3b3b3;
         margin-top: 0.5rem;
+    }
+
+    /* Section Headers */
+    .section-header {
+        color: #E50914;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-top: 3rem;
+        margin-bottom: 1rem;
+        text-align: center;
     }
 
     /* Footer */
@@ -319,6 +345,11 @@ def get_content_recommendations(title, movies_df, indices, tfidf_matrix, n=10):
     except:
         return []
 
+def get_movies_by_genre(movies_df, genre, n=10):
+    """Get movies by genre"""
+    filtered = movies_df[movies_df['genres'].str.contains(genre, case=False, na=False)]
+    return filtered.head(n)
+
 def get_collaborative_recommendations(user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, n=10):
     if user_id not in user_to_idx:
         return []
@@ -361,8 +392,8 @@ def main():
     # Hero Section
     st.markdown("""
         <div class="hero">
-            <h1>MR1</h1>
-            <p>Discover Your Next Favorite Movie with AI-Powered Recommendations</p>
+            <h1>MRS</h1>
+            <p>Movie Recommendation System - Discover Your Next Favorite Movie with AI</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -407,185 +438,131 @@ def main():
     if demo_mode:
         st.info("Demo mode: Using small sample dataset for Streamlit Cloud. For full recommendations, run locally with the full MovieLens 25M dataset.")
 
-    st.caption("Data: MovieLens 25M, GroupLens Research. See README for citation.")
+    # ========== MAIN RECOMMENDATION SECTION (TOP) ==========
+    st.markdown('<h2 class="section-header">🎬 Get Movie Recommendations</h2>', unsafe_allow_html=True)
 
-    st.markdown("## Choose Your Recommendation Method")
-    st.markdown("Select the algorithm that best fits your needs:")
-
-    # Method selection cards
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown("""
-            <div class="method-card">
-                <h3>🎭 Similar Movies</h3>
-                <p><strong>How it works:</strong> Analyzes movie genres and themes using TF-IDF vectorization and cosine similarity.</p>
-                <p><strong>Best for:</strong> Finding movies like your favorites</p>
-                <p><strong>Use case:</strong> "I loved Inception, show me similar thrillers"</p>
-                <span class="tech-badge">TF-IDF</span>
-                <span class="tech-badge">Cosine Similarity</span><br>
-                <span class="accuracy-badge">✓ Fast & Accurate</span>
-            </div>
-        """, unsafe_allow_html=True)
-        similar_btn = st.button("Use Similar Movies", key="similar_btn", use_container_width=True)
-
-    with col2:
-        st.markdown("""
-            <div class="method-card">
-                <h3>👥 For User</h3>
-                <p><strong>How it works:</strong> Uses Matrix Factorization (NMF) to learn patterns from 1M+ ratings.</p>
-                <p><strong>Best for:</strong> Personalized recommendations</p>
-                <p><strong>Use case:</strong> "Based on my history, what should I watch next?"</p>
-                <span class="tech-badge">NMF</span>
-                <span class="tech-badge">Collaborative Filtering</span><br>
-                <span class="accuracy-badge">✓ Personalized</span>
-            </div>
-        """, unsafe_allow_html=True)
-        user_btn = st.button("Use User-Based", key="user_btn", use_container_width=True)
-
-    with col3:
-        st.markdown("""
-            <div class="method-card">
-                <h3>🤖 AI Powered</h3>
-                <p><strong>How it works:</strong> Deep Neural Network with embeddings learns complex patterns from 500K+ interactions.</p>
-                <p><strong>Best for:</strong> Most accurate predictions</p>
-                <p><strong>Use case:</strong> "Give me the best AI predictions"</p>
-                <span class="tech-badge">Neural Network</span>
-                <span class="tech-badge">Deep Learning</span><br>
-                <span class="accuracy-badge">✓ MAE: 0.75 (Best!)</span>
-            </div>
-        """, unsafe_allow_html=True)
-        ai_btn = st.button("Use AI Powered", key="ai_btn", use_container_width=True)
-
-    st.markdown("<hr>", unsafe_allow_html=True)
-
-    # Session state
-    if 'method' not in st.session_state:
-        st.session_state.method = None
-
-    if similar_btn:
-        st.session_state.method = "Similar Movies"
-    elif user_btn:
-        st.session_state.method = "For User"
-    elif ai_btn:
-        st.session_state.method = "AI Powered"
+    # Input method selection
+    search_method = st.radio(
+        "Choose how you want to find movies:",
+        ["Search by Movie Name", "Browse by Genre", "Personalized (User ID)"],
+        horizontal=True
+    )
 
     recommendations = []
     avg_score = 0
+    selected_method = None
 
-    # Similar Movies Interface
-    if st.session_state.method == "Similar Movies":
-        st.markdown("### 🎭 Content-Based Filtering")
-        st.markdown("""
-            <div class="info-box">
-                <h4>How This Works</h4>
-                <p>We analyze movie genres using TF-IDF to create mathematical representations,
-                then calculate similarity scores to find movies with similar characteristics.</p>
-            </div>
-        """, unsafe_allow_html=True)
+    # Input Section
+    col1, col2, col3 = st.columns([2, 1, 1])
 
-        col1, col2 = st.columns([3, 1])
-
+    if search_method == "Search by Movie Name":
         with col1:
             movie_titles = movies_df['title'].tolist()
-            search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title...")
+            search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title (e.g., Toy Story, Inception)...")
 
             if search_term:
                 filtered_movies = [t for t in movie_titles if search_term.lower() in t.lower()]
                 if filtered_movies:
-                    selected_movie = st.selectbox("Select from search results:", options=filtered_movies, index=0)
+                    selected_movie = st.selectbox("Select a movie:", options=filtered_movies, index=0)
                 else:
                     st.warning(f"No movies found matching '{search_term}'")
-                    selected_movie = st.selectbox("Or browse all movies:", options=movie_titles,
-                                                index=movie_titles.index('Toy Story (1995)') if 'Toy Story (1995)' in movie_titles else 0)
+                    selected_movie = st.selectbox("Or browse all movies:", options=movie_titles[:100])
             else:
-                selected_movie = st.selectbox("Or browse all movies:", options=movie_titles,
-                                            index=movie_titles.index('Toy Story (1995)') if 'Toy Story (1995)' in movie_titles else 0)
+                selected_movie = st.selectbox("Or browse popular movies:", options=movie_titles[:100])
 
         with col2:
             num_recs = st.number_input("Number of recommendations", min_value=5, max_value=20, value=10)
 
-        if st.button("🎯 Get Recommendations", key="content_get"):
-            with st.spinner('🔍 Analyzing movie similarities...'):
-                recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
-                if recommendations:
-                    avg_score = np.mean([r['similarity'] for r in recommendations])
+        with col3:
+            st.write("")
+            st.write("")
+            if st.button("🎯 Get Similar Movies", use_container_width=True):
+                with st.spinner('🔍 Finding similar movies...'):
+                    recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
+                    if recommendations:
+                        avg_score = np.mean([r['similarity'] for r in recommendations])
+                        selected_method = "Content-Based (Similar Movies)"
 
-    # For User Interface
-    elif st.session_state.method == "For User":
-        st.markdown("### 👥 Collaborative Filtering")
-        st.markdown("""
-            <div class="info-box">
-                <h4>How This Works</h4>
-                <p>Uses Non-negative Matrix Factorization (NMF) to find users with similar tastes
-                and recommend movies they enjoyed.</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        col1, col2 = st.columns([3, 1])
-
+    elif search_method == "Browse by Genre":
         with col1:
-            available_users = list(user_to_idx.keys())
+            all_genres = set()
+            for genres_str in movies_df['genres'].dropna():
+                all_genres.update(genres_str.split('|'))
+            all_genres = sorted(list(all_genres))
+
+            selected_genre = st.selectbox("🎭 Select a genre:", options=all_genres)
+
+        with col2:
+            num_recs = st.number_input("Number of movies", min_value=5, max_value=20, value=10)
+
+        with col3:
+            st.write("")
+            st.write("")
+            if st.button("🎯 Browse Genre", use_container_width=True):
+                with st.spinner(f'🔍 Finding {selected_genre} movies...'):
+                    genre_movies = get_movies_by_genre(movies_df, selected_genre, num_recs)
+                    recommendations = []
+                    for _, row in genre_movies.iterrows():
+                        recommendations.append({
+                            'title': row['title'],
+                            'genre': row['genres'],
+                            'similarity': 100  # Genre match
+                        })
+                    selected_method = f"Genre-Based ({selected_genre})"
+
+    else:  # Personalized (User ID)
+        with col1:
+            rec_model = st.selectbox(
+                "🤖 Choose recommendation model:",
+                ["Collaborative Filtering (NMF)", "Deep Learning (Neural Network)"]
+            )
+
+            available_users = list(user_to_idx.keys()) if rec_model == "Collaborative Filtering (NMF)" else list(user_id_map.keys())
             user_id = st.selectbox("👤 Select User ID:", options=available_users[:100],
                                  help=f"Choose from {len(available_users)} users")
 
         with col2:
             num_recs = st.number_input("Number of recommendations", min_value=5, max_value=20, value=10)
 
-        if st.button("🎯 Get Recommendations", key="collab_get"):
-            with st.spinner('📊 Analyzing user preferences...'):
-                recommendations = get_collaborative_recommendations(
-                    user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
-                if recommendations:
-                    avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+        with col3:
+            st.write("")
+            st.write("")
+            if st.button("🎯 Get Personalized", use_container_width=True):
+                if rec_model == "Collaborative Filtering (NMF)":
+                    with st.spinner('📊 Analyzing user preferences...'):
+                        recommendations = get_collaborative_recommendations(
+                            user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
+                        if recommendations:
+                            avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+                            selected_method = "Collaborative Filtering (NMF)"
+                else:
+                    with st.spinner('🧠 Running neural network...'):
+                        recommendations = get_dl_recommendations(
+                            user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
+                        if recommendations:
+                            avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+                            selected_method = "Deep Learning (Neural Network)"
 
-    # AI Powered Interface
-    elif st.session_state.method == "AI Powered":
-        st.markdown("### 🤖 Deep Learning Neural Network")
-        st.markdown("""
-            <div class="info-box">
-                <h4>How This Works</h4>
-                <p>Neural Collaborative Filtering model with 6.8M parameters creates embeddings
-                for users and movies, learning complex patterns. MAE: 0.75 stars.</p>
-            </div>
-        """, unsafe_allow_html=True)
-
-        col1, col2 = st.columns([3, 1])
-
-        with col1:
-            available_users = list(user_id_map.keys())
-            user_id = st.selectbox("👤 Select User ID:", options=available_users[:100],
-                                 help=f"Choose from {len(available_users)} users")
-
-        with col2:
-            num_recs = st.number_input("Number of recommendations", min_value=5, max_value=20, value=10, key="dl_num")
-
-        if st.button("🎯 Get Recommendations", key="dl_get"):
-            with st.spinner('🧠 Running neural network inference...'):
-                recommendations = get_dl_recommendations(
-                    user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
-                if recommendations:
-                    avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-
-    # Display results
+    # Display Results
     if recommendations:
         st.markdown("<hr>", unsafe_allow_html=True)
 
+        # Stats
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"""
                 <div class="stat-container">
                     <div class="stat-value">{len(recommendations)}</div>
-                    <div class="stat-label">Recommendations</div>
+                    <div class="stat-label">Recommendations Found</div>
                 </div>
             """, unsafe_allow_html=True)
 
         with col2:
-            if st.session_state.method == "Similar Movies":
+            if 'similarity' in recommendations[0]:
                 st.markdown(f"""
                     <div class="stat-container">
                         <div class="stat-value">{avg_score:.1f}%</div>
-                        <div class="stat-label">Avg Similarity</div>
+                        <div class="stat-label">Avg Match Score</div>
                     </div>
                 """, unsafe_allow_html=True)
             else:
@@ -597,16 +574,16 @@ def main():
                 """, unsafe_allow_html=True)
 
         with col3:
-            dataset_size = "25M ratings" if st.session_state.method != "For User" else "1M ratings"
             st.markdown(f"""
                 <div class="stat-container">
                     <div class="stat-value">✓</div>
-                    <div class="stat-label">Trained on {dataset_size}</div>
+                    <div class="stat-label">{selected_method}</div>
                 </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<h2 style='margin-top: 2rem;'>🎬 Your Personalized Recommendations</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='margin-top: 2rem; color: #E50914;'>🍿 Your Recommendations</h2>", unsafe_allow_html=True)
 
+        # Display recommendations
         for i, rec in enumerate(recommendations, 1):
             genres = rec['genre'].split('|')[:3]
             genre_tags = ''.join([f'<span class="genre-tag">{g}</span>' for g in genres])
@@ -624,6 +601,51 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
 
+    # ========== MODEL EXPLANATIONS SECTION (BOTTOM) ==========
+    st.markdown('<h2 class="section-header">🤖 Our Recommendation Models</h2>', unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #b3b3b3; margin-bottom: 2rem;'>Learn about the three AI models powering this system</p>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+            <div class="method-card">
+                <h3>🎭 Content-Based</h3>
+                <p><strong>How it works:</strong> Analyzes movie genres and themes using TF-IDF vectorization and cosine similarity.</p>
+                <p><strong>Best for:</strong> Finding movies similar to ones you already love</p>
+                <p><strong>Use case:</strong> "Show me movies like Inception"</p>
+                <span class="tech-badge">TF-IDF</span>
+                <span class="tech-badge">Cosine Similarity</span><br>
+                <span class="accuracy-badge">✓ Fast & Accurate</span>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+            <div class="method-card">
+                <h3>👥 Collaborative Filtering</h3>
+                <p><strong>How it works:</strong> Uses Matrix Factorization (NMF) to learn patterns from 1M+ user ratings.</p>
+                <p><strong>Best for:</strong> Personalized recommendations based on viewing history</p>
+                <p><strong>Use case:</strong> "What should I watch next based on my taste?"</p>
+                <span class="tech-badge">NMF</span>
+                <span class="tech-badge">Matrix Factorization</span><br>
+                <span class="accuracy-badge">✓ Personalized</span>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+            <div class="method-card">
+                <h3>🤖 Deep Learning</h3>
+                <p><strong>How it works:</strong> Neural network with 6.8M parameters learns complex patterns from 500K+ interactions.</p>
+                <p><strong>Best for:</strong> Most accurate AI-powered predictions</p>
+                <p><strong>Use case:</strong> "Give me the best predictions using advanced AI"</p>
+                <span class="tech-badge">Neural Network</span>
+                <span class="tech-badge">Embeddings</span><br>
+                <span class="accuracy-badge">✓ MAE: 0.75 (Best!)</span>
+            </div>
+        """, unsafe_allow_html=True)
+
     # Footer
     st.markdown("""
         <div class="footer">
@@ -637,7 +659,7 @@ def main():
             <p>TensorFlow 2.20 • Scikit-learn • Pandas • NumPy • Streamlit</p>
             <p>Algorithms: TF-IDF, NMF Matrix Factorization, Neural Collaborative Filtering</p>
             <p style="margin-top: 1.5rem; color: #666; font-size: 0.8rem;">
-                © 2025 MR1 - Movie Recommender One | Built for educational and research purposes<br>
+                © 2025 MRS - Movie Recommendation System | Built for educational and research purposes<br>
                 All movie data and ratings are property of their respective owners and the MovieLens project
             </p>
         </div>
