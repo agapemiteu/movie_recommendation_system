@@ -194,6 +194,4 @@ MIT License
 
 ---
 
-## Contact
 
-For project inquiries, please open an issue in this repository.
