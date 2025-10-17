@@ -368,6 +368,9 @@ def get_collaborative_recommendations(user_id, user_to_idx, user_features, movie
     return results
 
 def get_dl_recommendations(user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, n=10):
+    # Check if model is available
+    if dl_model is None:
+        return []
     if user_id not in user_id_map:
         return []
     user_idx = user_id_map[user_id]
@@ -513,14 +516,17 @@ def main():
                         selected_method = "Collaborative Filtering"
 
             else:  # Deep Learning Neural Network
-                with st.spinner('🧠 Running neural network predictions...'):
-                    # Use a random sample user for demo - in production, this would use actual user data
-                    sample_user = list(user_id_map.keys())[0]
-                    recommendations = get_dl_recommendations(
-                        sample_user, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
-                    if recommendations:
-                        avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-                        selected_method = "Deep Learning Neural Network"
+                if dl_model is None or demo_mode:
+                    st.warning("⚠️ Deep Learning model is not available in demo mode. This model requires the full dataset. Please try Content-Based Filtering or Collaborative Filtering instead.")
+                else:
+                    with st.spinner('🧠 Running neural network predictions...'):
+                        # Use a random sample user for demo - in production, this would use actual user data
+                        sample_user = list(user_id_map.keys())[0]
+                        recommendations = get_dl_recommendations(
+                            sample_user, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
+                        if recommendations:
+                            avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+                            selected_method = "Deep Learning Neural Network"
 
     else:  # Genre browsing doesn't need model selection
         if st.button("🎯 Show Movies", use_container_width=True, type="primary"):
