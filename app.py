@@ -490,19 +490,19 @@ def main():
         st.markdown("---")
         rec_model = st.selectbox(
             "🤖 Choose which AI model to use for recommendations:",
-            ["Similarity Matching (Fast)", "User Taste Analysis (Smart)", "AI Intelligence (Most Accurate)"],
+            ["Content-Based Filtering", "Collaborative Filtering", "Deep Learning Neural Network"],
             help="Different AI models provide different types of recommendations"
         )
 
         if st.button("🎯 Get Recommendations", use_container_width=True, type="primary"):
-            if rec_model == "Similarity Matching (Fast)":
+            if rec_model == "Content-Based Filtering":
                 with st.spinner('🔍 Finding similar movies...'):
                     recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
                     if recommendations:
                         avg_score = np.mean([r['similarity'] for r in recommendations])
-                        selected_method = "Similarity Matching"
+                        selected_method = "Content-Based Filtering"
 
-            elif rec_model == "User Taste Analysis (Smart)":
+            elif rec_model == "Collaborative Filtering":
                 with st.spinner('📊 Analyzing similar user preferences...'):
                     # Use a random sample user for demo - in production, this would use actual user data
                     sample_user = list(user_to_idx.keys())[0]
@@ -510,17 +510,17 @@ def main():
                         sample_user, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
                     if recommendations:
                         avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-                        selected_method = "User Taste Analysis"
+                        selected_method = "Collaborative Filtering"
 
-            else:  # AI Intelligence
-                with st.spinner('🧠 Running AI predictions...'):
+            else:  # Deep Learning Neural Network
+                with st.spinner('🧠 Running neural network predictions...'):
                     # Use a random sample user for demo - in production, this would use actual user data
                     sample_user = list(user_id_map.keys())[0]
                     recommendations = get_dl_recommendations(
                         sample_user, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
                     if recommendations:
                         avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-                        selected_method = "AI Intelligence"
+                        selected_method = "Deep Learning Neural Network"
 
     else:  # Genre browsing doesn't need model selection
         if st.button("🎯 Show Movies", use_container_width=True, type="primary"):
