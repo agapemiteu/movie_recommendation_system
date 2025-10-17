@@ -196,4 +196,4 @@ MIT License
 
 ## Contact
 
-Email: agapemiteu@gmail.com
+For project inquiries, please open an issue in this repository.
