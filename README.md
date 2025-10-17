@@ -57,37 +57,13 @@ Visit `http://localhost:8501`
 
 ---
 
-## Architecture
+## About / Live Demo
 
-```
-movie_recommendation_system/
-├── app.py                              # Streamlit web application
-├── save_models.py                      # Model training and saving
-├── requirements.txt                    # Dependencies
-│
-├── data/
-│   ├── ml-25m/                        # MovieLens 25M dataset
-│   ├── sample_movies.csv              # Demo dataset
-│   └── sample_ratings.csv             # Demo ratings
-│
-├── models/                             # Pre-trained models
-│   ├── deep_learning_model.keras      # Neural Collaborative Filtering
-│   ├── nmf_model.pkl                  # NMF model and features
-│   ├── tfidf_model.pkl                # TF-IDF vectorizer
-│   ├── tfidf_matrix.pkl               # Pre-computed TF-IDF matrix
-│   ├── indices.pkl                    # Movie index mapping
-│   └── dl_mappings.pkl                # User/movie ID mappings
-│
-├── notebooks/
-│   └── phase_1_content_based_filtering.ipynb  # Development and training
-│
-├── .streamlit/
-│   └── config.toml                    # Streamlit configuration
-│
-└── tests/
-    ├── test_recs.py                   # Recommendation tests
-    └── test_dl_mappings.py            # Deep learning mapping tests
-```
+Try the demo on Streamlit Cloud:
+
+https://movierecommendationsystem-dxe5m6b8ttvi937nyyynue.streamlit.app
+
+Note: the public demo runs in "demo mode" using a small sample dataset. For full production recommendations the full MovieLens dataset and trained model artifacts are required.
 
 ---
 
