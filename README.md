@@ -1,314 +1,223 @@
+# Movie Recommendation System
 
-# 🎬 MRS - Movie Recommendation System
+A machine learning system implementing three recommendation algorithms: Content-Based Filtering (TF-IDF), Collaborative Filtering (NMF), and Deep Learning Neural Networks. Built with Python, TensorFlow, and Streamlit for production deployment.
 
-[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
-[![TensorFlow 2.20](https://img.shields.io/badge/TensorFlow-2.20-orange.svg)](https://www.tensorflow.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.40-red.svg)](https://streamlit.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-
-A state-of-the-art movie recommendation system powered by multiple machine learning algorithms including Neural Collaborative Filtering, Content-Based Filtering, and Hybrid approaches. Built with TensorFlow and Streamlit for an elegant Netflix-inspired user experience.
+**Live Demo:** [Streamlit Cloud](https://movierecommendationsystem-dxe5m6b8ttvi937nyyynue.streamlit.app)
 
 ---
 
-## 📦 Data Source
+## Overview
 
-This project uses the [MovieLens 25M Dataset](https://grouplens.org/datasets/movielens/25m/) provided by GroupLens Research.
+This system demonstrates three distinct machine learning approaches to movie recommendations using the MovieLens 25M dataset (25M ratings, 62,423 movies, 162,541 users).
 
-- **Official Download:** https://grouplens.org/datasets/movielens/25m/
-- **License:** For non-commercial, research use only. See [GroupLens Terms of Use](https://grouplens.org/datasets/movielens/).
-
-**Citation:**
-> F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets: History and Context. ACM Transactions on Interactive Intelligent Systems (TiiS) 5, 4: 19:1–19:19. https://doi.org/10.1145/2827872
+**Key Features:**
+- Content-Based Filtering using TF-IDF and cosine similarity
+- Collaborative Filtering using NMF matrix factorization
+- Deep Learning using Neural Collaborative Filtering with 50-dimensional embeddings
+- Web interface with search, genre browsing, and model selection
+- Demo mode for cloud deployment
 
 ---
 
-## 🚀 Getting Started
+## Installation
 
-Follow these steps to set up and run the project on your machine:
-
-### 1. Clone the repository
+### 1. Clone Repository
 ```bash
 git clone https://github.com/agapemiteu/movie_recommendation_system.git
 cd movie_recommendation_system
 ```
 
-### 2. Install dependencies
+### 2. Create Virtual Environment
 ```bash
 python -m venv .venv
 .venv\Scripts\activate  # Windows
 # source .venv/bin/activate  # macOS/Linux
+```
+
+### 3. Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Download the MovieLens 25M dataset
-- Go to the [official MovieLens 25M page](https://grouplens.org/datasets/movielens/25m/)
-- Download and unzip `ml-25m.zip`
-- Place the extracted `ml-25m` folder inside the `data/` directory of this project:
-   - `data/ml-25m/movies.csv`
-   - `data/ml-25m/ratings.csv`
-   - ... (other files)
+### 4. Download Dataset
+- Visit [MovieLens 25M](https://grouplens.org/datasets/movielens/25m/)
+- Download and extract ml-25m.zip
+- Place in `data/ml-25m/` directory
 
-### 4. Run the analysis or app
-- **Jupyter Notebook:**
-   - Open and run `notebooks/phase_1_content_based_filtering.ipynb` to train models and explore the pipeline.
-- **Streamlit App:**
-   - Run `streamlit run app.py` to launch the web interface.
-
----
-
-## ✨ Features
-
-- 🤖 **AI-Powered Recommendations** - Neural Collaborative Filtering with MAE 0.75
-- 🎯 **Content-Based Filtering** - TF-IDF vectorization with cosine similarity
-- 👥 **Collaborative Filtering** - Matrix factorization using NMF
-- 🔄 **Hybrid Approach** - Best of both worlds combining multiple algorithms
-- 🎨 **Netflix-Style UI** - Professional dark theme with interactive visualizations
-- 📊 **Performance Metrics** - Real-time accuracy and prediction confidence
-- 🔍 **Smart Search** - Find movies instantly from 62,000+ titles
-
-## 🚀 Quick Start
-
-### Installation
-
+### 5. Run Application
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/movie_recommendation_system.git
-cd movie_recommendation_system
-
-# Create virtual environment (recommended)
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # macOS/Linux
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Download Dataset
-
-1. Download the MovieLens 25M dataset from [GroupLens](https://grouplens.org/datasets/movielens/25m/)
-2. Extract to `data/ml-25m/` directory
-3. Ensure these files exist:
-   - `data/ml-25m/movies.csv`
-   - `data/ml-25m/ratings.csv`
-   - `data/ml-25m/genome-scores.csv`
-   - `data/ml-25m/genome-tags.csv`
-
-### Train Models
-
-```bash
-# Run the Jupyter notebook to train all models
-jupyter notebook notebooks/phase_1_content_based_filtering.ipynb
-
-# Or use the save_models.py script
+# Train models (optional)
 python save_models.py
-```
 
-### Launch the App
-
-```bash
+# Launch web app
 streamlit run app.py
 ```
 
-Visit `http://localhost:8501` in your browser!
+Visit `http://localhost:8501`
 
-## � Live Demo (Streamlit)
+---
 
-Once deployed, add your app URL here. Example badge to add to README after deployment:
-
-[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://<your-app-url>.streamlit.app)
-
-## �📊 Model Performance
-
-| Model | Test MAE | Test RMSE | Features |
-|-------|----------|-----------|----------|
-| **Tuned NCF** ⭐ | **0.7479** | 0.95 | Optimized embeddings (32-dim, lr=0.001) |
-| Enhanced NCF | 0.8448 | 1.07 | User + Movie + Genre features |
-| Basic NCF | 0.8336 | 1.06 | User + Movie IDs only |
-
-**Best Model:** Tuned Neural Collaborative Filtering achieves **MAE 0.75** - predictions are within 0.75 stars on average!
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 movie_recommendation_system/
-├── app.py                      # Streamlit web application
-├── requirements.txt            # Production dependencies
-├── save_models.py             # Model training script
+├── app.py                              # Streamlit web application
+├── save_models.py                      # Model training and saving
+├── requirements.txt                    # Dependencies
 │
 ├── data/
-│   └── ml-25m/                # MovieLens 25M dataset
-│       ├── movies.csv         # 62,423 movies
-│       ├── ratings.csv        # 25 million ratings
-│       └── ...
+│   ├── ml-25m/                        # MovieLens 25M dataset
+│   ├── sample_movies.csv              # Demo dataset
+│   └── sample_ratings.csv             # Demo ratings
 │
-├── models/                     # Trained models (saved after training)
-│   ├── deep_learning_model.keras    # Neural Collaborative Filtering
-│   ├── tfidf_matrix.pkl            # Content-based TF-IDF
-│   ├── nmf_model.pkl               # Collaborative filtering
-│   └── dl_mappings.pkl             # User/Movie ID mappings
+├── models/                             # Pre-trained models
+│   ├── deep_learning_model.keras      # Neural Collaborative Filtering
+│   ├── nmf_model.pkl                  # NMF model and features
+│   ├── tfidf_model.pkl                # TF-IDF vectorizer
+│   ├── tfidf_matrix.pkl               # Pre-computed TF-IDF matrix
+│   ├── indices.pkl                    # Movie index mapping
+│   └── dl_mappings.pkl                # User/movie ID mappings
 │
 ├── notebooks/
-│   └── phase_1_content_based_filtering.ipynb  # Training notebook
+│   └── phase_1_content_based_filtering.ipynb  # Development and training
 │
-└── src/                        # Source modules (optional refactor)
-    ├── data_loader.py
-    ├── models.py
-    ├── recommender.py
-    └── train.py
+├── .streamlit/
+│   └── config.toml                    # Streamlit configuration
+│
+└── tests/
+    ├── test_recs.py                   # Recommendation tests
+    └── test_dl_mappings.py            # Deep learning mapping tests
 ```
 
-## 🎯 How It Works
+---
+
+## Models
 
 ### 1. Content-Based Filtering
-Uses TF-IDF vectorization on movie genres to find similar movies based on content features.
-
-**Algorithm:** Cosine similarity between TF-IDF vectors
-```python
-similarity = cosine_similarity(movie_vector, all_movies_vectors)
-```
+- **Algorithm:** TF-IDF + Cosine Similarity
+- **Implementation:** Analyzes movie genres to find similar content
+- **Performance:** Fast, deterministic results
+- **Status:** Fully functional in demo mode
 
 ### 2. Collaborative Filtering
-Matrix factorization (NMF) learns latent features from user rating patterns.
+- **Algorithm:** Non-negative Matrix Factorization (NMF)
+- **Components:** 20 latent factors
+- **Training Data:** 142,046 users × 23,238 movies
+- **Performance:** Personalized based on user rating patterns
 
-**Algorithm:** Non-negative Matrix Factorization
-```python
-user_item_matrix ≈ user_features × movie_features
-```
+### 3. Deep Learning Neural Network
+- **Architecture:** Neural Collaborative Filtering
+- **Embeddings:** 50-dimensional for users and movies
+- **Layers:** Embedding → Dense(128) → Dense(64) → Dense(32) → Output
+- **Regularization:** Dropout (0.3-0.4)
+- **Performance:** MAE = 0.75 (best model)
+- **Model Size:** 78.4 MB
+- **Training Data:** 118,288 users × 18,205 movies
 
-### 3. Neural Collaborative Filtering (AI)
-Deep learning model with embeddings for users and movies, trained on 25M ratings.
+---
 
-**Architecture:**
-- User embedding layer (50-dim) + Movie embedding layer (50-dim)
-- Deep neural network: 128 → 64 → 32 neurons
-- Dropout regularization (0.3-0.4)
-- Optimized with Adam optimizer
+## Model Performance
 
-### 4. Hybrid Approach
-Combines content-based and collaborative filtering with weighted scoring:
-- Content-based weight: 0.5
-- Collaborative weight: 1.0
+| Model | MAE | RMSE | Dataset |
+|-------|-----|------|---------|
+| Deep Learning NCF | 0.75 | 0.95 | 500K+ interactions |
+| Collaborative (NMF) | ~0.9 | ~1.1 | 1M ratings |
+| Content-Based | N/A | N/A | Genre similarity |
 
-## 🌐 Deployment
+---
 
-### Deploy to Streamlit Cloud (Free)
+## Usage
 
-1. **Push to GitHub:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: MR1 Movie Recommender"
-   git remote add origin https://github.com/yourusername/movie_recommendation_system.git
-   git push -u origin main
-   ```
+### Search by Movie Title
+1. Select "Search by Movie Title"
+2. Enter movie name or browse suggestions
+3. Choose recommendation model:
+   - Content-Based Filtering (fast)
+   - Collaborative Filtering (personalized)
+   - Deep Learning (most accurate)
+4. Click "Get Recommendations"
 
-2. **Deploy on Streamlit Cloud:**
-   - Visit [streamlit.io/cloud](https://streamlit.io/cloud)
-   - Click "New app"
-   - Connect your GitHub repository
-   - Set main file: `app.py`
-   - Click "Deploy"!
+### Browse by Genre
+1. Select "Browse by Genre"
+2. Choose genre from dropdown
+3. Click "Show Movies"
+4. Browse results with genre tags
 
-3. **Note:** Due to model size, you may need to:
-   - Use Git LFS for large files (`models/*.keras`)
-   - Or retrain models on Streamlit Cloud using `save_models.py`
+---
 
-### Deploy to Heroku
+## Technologies
 
-```bash
-# Install Heroku CLI
-# Create Procfile
-echo "web: streamlit run app.py --server.port=$PORT" > Procfile
+- Python 3.13
+- TensorFlow 2.20
+- Keras
+- Streamlit 1.40
+- scikit-learn 1.5.2
+- Pandas 2.2.3
+- NumPy 2.1.0+
+- Plotly 5.24.1
 
-# Create runtime.txt
-echo "python-3.13.0" > runtime.txt
+---
 
-# Deploy
-heroku create your-app-name
-git push heroku main
-```
+## Dataset
 
-### Deploy to AWS/GCP
+MovieLens 25M Dataset provided by GroupLens Research
 
-Use Docker for containerized deployment:
-
-```dockerfile
-FROM python:3.13-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8501
-CMD ["streamlit", "run", "app.py", "--server.port=8501"]
-```
-
-## 🛠️ Technologies Used
-
-- **Python 3.13** - Latest Python with performance improvements
-- **TensorFlow 2.20** - Deep learning framework
-- **Keras** - High-level neural network API
-- **Streamlit 1.40** - Web framework for ML apps
-- **scikit-learn 1.5** - Traditional ML algorithms
-- **Pandas 2.2** - Data manipulation
-- **NumPy 2.0** - Numerical computing
-- **Plotly 5.24** - Interactive visualizations
-
-## 📖 Dataset
-
-This project uses the **MovieLens 25M Dataset** provided by GroupLens Research.
-
-- **Movies:** 62,423 titles
-- **Ratings:** 25 million ratings from 162,541 users
-- **Genres:** 20 unique genres
-- **Time Period:** January 1995 - November 2019
+- 62,423 movies
+- 25 million ratings
+- 162,541 users
+- 23 genres
+- Time period: January 1995 - November 2019
 
 **Citation:**
 ```
-F. Maxwell Harper and Joseph A. Konstan. 2015. 
-The MovieLens Datasets: History and Context. 
+F. Maxwell Harper and Joseph A. Konstan. 2015.
+The MovieLens Datasets: History and Context.
 ACM Transactions on Interactive Intelligent Systems (TiiS) 5, 4: 19:1–19:19.
 https://doi.org/10.1145/2827872
 ```
 
-## 🎓 Academic References
+---
 
-1. **Neural Collaborative Filtering**
-   - He, X., Liao, L., Zhang, H., Nie, L., Hu, X., & Chua, T. S. (2017). Neural collaborative filtering. In WWW 2017.
+## Deployment
 
-2. **Matrix Factorization**
-   - Koren, Y., Bell, R., & Volinsky, C. (2009). Matrix factorization techniques for recommender systems. Computer, 42(8), 30-37.
+### Local
+```bash
+streamlit run app.py
+```
 
-3. **Content-Based Filtering**
-   - Lops, P., De Gemmis, M., & Semeraro, G. (2011). Content-based recommender systems: State of the art and trends. In Recommender systems handbook.
+### Streamlit Cloud
+Repository is configured for Streamlit Cloud deployment. Push to GitHub and connect repository in Streamlit Cloud dashboard.
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- GroupLens Research for the MovieLens dataset
-- TensorFlow and Keras teams for excellent documentation
-- Streamlit for making ML app deployment accessible
-
-## 📧 Contact
-
-Your Name - [@yourhandle](https://twitter.com/yourhandle) - your.email@example.com
-
-Project Link: [https://github.com/yourusername/movie_recommendation_system](https://github.com/yourusername/movie_recommendation_system)
+### Docker
+```bash
+docker build -t movie-recommender .
+docker run -p 8501:8501 movie-recommender
+```
 
 ---
 
-**⭐ If you found this project helpful, please consider giving it a star!**
+## Development
+
+### Training Models
+Run notebook to train all models:
+```bash
+jupyter notebook notebooks/phase_1_content_based_filtering.ipynb
+```
+
+### Testing
+```bash
+python -u test_recs.py
+pytest tests/test_dl_mappings.py
+```
+
+---
+
+## License
+
+MIT License
+
+---
+
+## Contact
+
+Email: agapemiteu@gmail.com
