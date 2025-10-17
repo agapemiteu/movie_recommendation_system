@@ -27,14 +27,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Model accuracy and display name
-MODEL_ACCURACY = {
-    'basic_ncf': 0.8336,
-    'enhanced_ncf': 0.8448,
-    'tuned_ncf': 0.7479,
-}
-MODEL_NAME = "Tuned NCF"
-
 # Enhanced CSS - Netflix-inspired theme
 st.markdown("""
     <style>
@@ -338,22 +330,30 @@ def load_models():
 # Recommendation functions
 def get_content_recommendations(title, movies_df, indices, tfidf_matrix, n=10):
     try:
-        # If artifacts missing (demo mode), build a lightweight TF-IDF on the fly
-        if tfidf_matrix is None or indices is None:
-            genres = movies_df['genres'].fillna('').astype(str)
-            vec = TfidfVectorizer(stop_words='english')
-            tfidf_local = vec.fit_transform(genres)
-            indices_local = pd.Series(movies_df.index, index=movies_df['title']).drop_duplicates()
-            idx = indices_local.get(title)
-            if idx is None:
-                return []
-            vector = tfidf_local[idx]
-            similarities = cosine_similarity(vector, tfidf_local).flatten()
-        else:
-            idx = indices.get(title) if isinstance(indices, pd.Series) else indices[title]
-            vector = tfidf_matrix[idx]
-            similarities = cosine_similarity(vector, tfidf_matrix).flatten()
+        local_indices = indices
+        local_matrix = tfidf_matrix
 
+        if (
+            local_matrix is None
+            or local_indices is None
+            or (hasattr(local_indices, "get") and local_indices.get(title) is None)
+        ):
+            genres = movies_df['genres'].fillna('').astype(str)
+            vectorizer = TfidfVectorizer(stop_words='english')
+            local_matrix = vectorizer.fit_transform(genres)
+            local_indices = pd.Series(movies_df.index, index=movies_df['title']).drop_duplicates()
+
+        idx = None
+        if hasattr(local_indices, "get"):
+            idx = local_indices.get(title)
+        if idx is None:
+            try:
+                idx = local_indices[title]  # type: ignore[index]
+            except Exception:
+                return []
+
+        vector = local_matrix[idx]
+        similarities = cosine_similarity(vector, local_matrix).flatten()
         sim_scores = list(enumerate(similarities))
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)[1:n+1]
         results = []
@@ -364,8 +364,8 @@ def get_content_recommendations(title, movies_df, indices, tfidf_matrix, n=10):
                 'similarity': float(score) * 100
             })
         return results
-    except Exception as e:
-        st.write(f"Content recommendation error: {e}")
+    except Exception as exc:
+        st.warning(f"Content recommendation error: {exc}")
         return []
 
 def get_movies_by_genre(movies_df, genre, n=10):
@@ -631,42 +631,41 @@ def main():
     with col1:
         st.markdown("""
             <div class="method-card">
-                <h3>🎭 Content-Based Filtering</h3>
+                <h3>🎭 Similarity Matching</h3>
                 <p><strong>What it does:</strong> Finds movies with matching genres and themes</p>
                 <p><strong>How:</strong> Compares movie features to find similar content</p>
                 <p><strong>Perfect for:</strong> "I loved Inception, show me more like it"</p>
-                <span class="tech-badge">TF-IDF</span>
-                <span class="tech-badge">Cosine Similarity</span><br>
-                <span class="accuracy-badge">✓ Fast & Accurate</span>
+                <span class="tech-badge">Pattern Matching</span>
+                <span class="tech-badge">Genre Analysis</span><br>
+                <span class="accuracy-badge">✓ Instant Results</span>
             </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
             <div class="method-card">
-                <h3>👥 Collaborative Filtering</h3>
+                <h3>👥 User Taste Analysis</h3>
                 <p><strong>What it does:</strong> Learns your preferences from 1M+ ratings</p>
                 <p><strong>How:</strong> Studies what users with similar taste enjoyed</p>
                 <p><strong>Perfect for:</strong> "Recommend based on my watch history"</p>
-                <span class="tech-badge">NMF Algorithm</span>
-                <span class="tech-badge">Matrix Factorization</span><br>
-                <span class="accuracy-badge">✓ Personalized</span>
+                <span class="tech-badge">Personalized</span>
+                <span class="tech-badge">Data-Driven</span><br>
+                <span class="accuracy-badge">✓ Smart Predictions</span>
             </div>
         """, unsafe_allow_html=True)
 
     with col3:
-        ai_html = f"""
+        st.markdown("""
             <div class="method-card">
-                <h3>🤖 Deep Learning Neural Network</h3>
+                <h3>🤖 AI Intelligence</h3>
                 <p><strong>What it does:</strong> Uses advanced AI to predict your ratings</p>
                 <p><strong>How:</strong> Trained on 500K+ user interactions using neural networks</p>
                 <p><strong>Perfect for:</strong> "Give me the most accurate predictions"</p>
-                <span class="tech-badge">Neural Network</span>
-                <span class="tech-badge">Deep Learning</span><br>
-                <span class="accuracy-badge">✓ {MODEL_NAME} — MAE: {MODEL_ACCURACY['tuned_ncf']:.2f}</span>
+                <span class="tech-badge">Machine Learning</span>
+                <span class="tech-badge">AI-Powered</span><br>
+                <span class="accuracy-badge">✓ Highest Accuracy (0.75★)</span>
             </div>
-        """
-        st.markdown(ai_html, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     # Footer
     st.markdown("""
