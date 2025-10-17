@@ -2,7 +2,7 @@
 
 A machine learning system implementing three recommendation algorithms: Content-Based Filtering (TF-IDF), Collaborative Filtering (NMF), and Deep Learning Neural Networks. Built with Python, TensorFlow, and Streamlit for production deployment.
 
-**Live Demo:** [Streamlit Cloud](https://movierecommendationsystem-dxe5m6b8ttvi937nyyynue.streamlit.app)
+**Live Demo:** https://movierecommendationsystem-dxe5m6b8ttvi937nyyynue.streamlit.app
 
 ---
 
