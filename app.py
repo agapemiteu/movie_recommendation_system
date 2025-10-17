@@ -439,12 +439,12 @@ def main():
         st.info("Demo mode: Using small sample dataset for Streamlit Cloud. For full recommendations, run locally with the full MovieLens 25M dataset.")
 
     # ========== MAIN RECOMMENDATION SECTION (TOP) ==========
-    st.markdown('<h2 class="section-header">🎬 Get Movie Recommendations</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">🎬 Find Your Next Movie</h2>', unsafe_allow_html=True)
 
     # Input method selection
     search_method = st.radio(
-        "Choose how you want to find movies:",
-        ["Search by Movie Name", "Browse by Genre", "Personalized (User ID)"],
+        "How do you want to search?",
+        ["Search by Movie Title", "Browse by Genre"],
         horizontal=True
     )
 
@@ -453,12 +453,12 @@ def main():
     selected_method = None
 
     # Input Section
-    col1, col2, col3 = st.columns([2, 1, 1])
+    col1, col2 = st.columns([3, 1])
 
-    if search_method == "Search by Movie Name":
+    if search_method == "Search by Movie Title":
         with col1:
             movie_titles = movies_df['title'].tolist()
-            search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title (e.g., Toy Story, Inception)...")
+            search_term = st.text_input("🔍 Search for a movie:", placeholder="Type movie title (e.g., Toy Story, Inception, Avatar)...")
 
             if search_term:
                 filtered_movies = [t for t in movie_titles if search_term.lower() in t.lower()]
@@ -466,24 +466,14 @@ def main():
                     selected_movie = st.selectbox("Select a movie:", options=filtered_movies, index=0)
                 else:
                     st.warning(f"No movies found matching '{search_term}'")
-                    selected_movie = st.selectbox("Or browse all movies:", options=movie_titles[:100])
+                    selected_movie = st.selectbox("Or browse popular movies:", options=movie_titles[:100])
             else:
                 selected_movie = st.selectbox("Or browse popular movies:", options=movie_titles[:100])
 
         with col2:
-            num_recs = st.number_input("Number of recommendations", min_value=5, max_value=20, value=10)
+            num_recs = st.number_input("How many?", min_value=5, max_value=20, value=10, help="Number of recommendations")
 
-        with col3:
-            st.write("")
-            st.write("")
-            if st.button("🎯 Get Similar Movies", use_container_width=True):
-                with st.spinner('🔍 Finding similar movies...'):
-                    recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
-                    if recommendations:
-                        avg_score = np.mean([r['similarity'] for r in recommendations])
-                        selected_method = "Content-Based (Similar Movies)"
-
-    elif search_method == "Browse by Genre":
+    else:  # Browse by Genre
         with col1:
             all_genres = set()
             for genres_str in movies_df['genres'].dropna():
@@ -493,55 +483,57 @@ def main():
             selected_genre = st.selectbox("🎭 Select a genre:", options=all_genres)
 
         with col2:
-            num_recs = st.number_input("Number of movies", min_value=5, max_value=20, value=10)
+            num_recs = st.number_input("How many?", min_value=5, max_value=20, value=10, help="Number of movies to show")
 
-        with col3:
-            st.write("")
-            st.write("")
-            if st.button("🎯 Browse Genre", use_container_width=True):
-                with st.spinner(f'🔍 Finding {selected_genre} movies...'):
-                    genre_movies = get_movies_by_genre(movies_df, selected_genre, num_recs)
-                    recommendations = []
-                    for _, row in genre_movies.iterrows():
-                        recommendations.append({
-                            'title': row['title'],
-                            'genre': row['genres'],
-                            'similarity': 100  # Genre match
-                        })
-                    selected_method = f"Genre-Based ({selected_genre})"
+    # Recommendation Model Selection (applies to movie search only)
+    if search_method == "Search by Movie Title":
+        st.markdown("---")
+        rec_model = st.selectbox(
+            "🤖 Choose which AI model to use for recommendations:",
+            ["Similarity Matching (Fast)", "User Taste Analysis (Smart)", "AI Intelligence (Most Accurate)"],
+            help="Different AI models provide different types of recommendations"
+        )
 
-    else:  # Personalized (User ID)
-        with col1:
-            rec_model = st.selectbox(
-                "🤖 Choose recommendation model:",
-                ["Collaborative Filtering (NMF)", "Deep Learning (Neural Network)"]
-            )
+        if st.button("🎯 Get Recommendations", use_container_width=True, type="primary"):
+            if rec_model == "Similarity Matching (Fast)":
+                with st.spinner('🔍 Finding similar movies...'):
+                    recommendations = get_content_recommendations(selected_movie, movies_df, indices, tfidf_matrix, num_recs)
+                    if recommendations:
+                        avg_score = np.mean([r['similarity'] for r in recommendations])
+                        selected_method = "Similarity Matching"
 
-            available_users = list(user_to_idx.keys()) if rec_model == "Collaborative Filtering (NMF)" else list(user_id_map.keys())
-            user_id = st.selectbox("👤 Select User ID:", options=available_users[:100],
-                                 help=f"Choose from {len(available_users)} users")
+            elif rec_model == "User Taste Analysis (Smart)":
+                with st.spinner('📊 Analyzing similar user preferences...'):
+                    # Use a random sample user for demo - in production, this would use actual user data
+                    sample_user = list(user_to_idx.keys())[0]
+                    recommendations = get_collaborative_recommendations(
+                        sample_user, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
+                    if recommendations:
+                        avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+                        selected_method = "User Taste Analysis"
 
-        with col2:
-            num_recs = st.number_input("Number of recommendations", min_value=5, max_value=20, value=10)
+            else:  # AI Intelligence
+                with st.spinner('🧠 Running AI predictions...'):
+                    # Use a random sample user for demo - in production, this would use actual user data
+                    sample_user = list(user_id_map.keys())[0]
+                    recommendations = get_dl_recommendations(
+                        sample_user, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
+                    if recommendations:
+                        avg_score = np.mean([r['predicted_rating'] for r in recommendations])
+                        selected_method = "AI Intelligence"
 
-        with col3:
-            st.write("")
-            st.write("")
-            if st.button("🎯 Get Personalized", use_container_width=True):
-                if rec_model == "Collaborative Filtering (NMF)":
-                    with st.spinner('📊 Analyzing user preferences...'):
-                        recommendations = get_collaborative_recommendations(
-                            user_id, user_to_idx, user_features, movie_features, idx_to_movie, movies_df, num_recs)
-                        if recommendations:
-                            avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-                            selected_method = "Collaborative Filtering (NMF)"
-                else:
-                    with st.spinner('🧠 Running neural network...'):
-                        recommendations = get_dl_recommendations(
-                            user_id, user_id_map, movie_id_map, user_ids, movie_ids, dl_model, movies_df, num_recs)
-                        if recommendations:
-                            avg_score = np.mean([r['predicted_rating'] for r in recommendations])
-                            selected_method = "Deep Learning (Neural Network)"
+    else:  # Genre browsing doesn't need model selection
+        if st.button("🎯 Show Movies", use_container_width=True, type="primary"):
+            with st.spinner(f'🔍 Finding {selected_genre} movies...'):
+                genre_movies = get_movies_by_genre(movies_df, selected_genre, num_recs)
+                recommendations = []
+                for _, row in genre_movies.iterrows():
+                    recommendations.append({
+                        'title': row['title'],
+                        'genre': row['genres'],
+                        'similarity': 100  # Genre match
+                    })
+                selected_method = f"Genre: {selected_genre}"
 
     # Display Results
     if recommendations:
